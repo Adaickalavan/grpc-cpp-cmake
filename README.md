@@ -17,4 +17,4 @@
     $ cd build
     $ ./bin/client https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io 80 /
     ```
-    For testing, I have set up a mock server using Postman at the url https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io. A `GET` request to this mock server url will return a web response "Hi got" and a `POST` request to this mock server url will reurn a web response "Hi posted". This can be verified by accessing the mock server url using your browser.
+    For testing, I have set up a mock server using Postman at the url https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io. A `GET` request to this mock server url will return a web response "Hi got" and a `POST` request to this mock server url will return a web response "Hi posted". This can be verified by accessing the mock server url using your browser.
