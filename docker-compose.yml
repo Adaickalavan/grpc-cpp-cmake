@@ -1,0 +1,10 @@
+version: '3'
+services:
+
+  cppclient:
+    image: cppclient
+    container_name: cppclient   
+    restart: on-failure #Ensures that intermittent failures in the Docker environment do not result in unnecessary failures of the service.
+    network_mode: host  
+    # Name of executable to be run
+    command: ["/src/build/bin/client", "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io", "80", "/"] 

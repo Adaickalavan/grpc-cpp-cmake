@@ -1,8 +1,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
+// #include <boost/beast/version.hpp>
+// #include <boost/asio/connect.hpp>
+// #include <boost/asio/ip/tcp.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <cstdlib>
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         auto const host = argv[1];
         auto const port = argv[2];
         auto const target = argv[3];
-        std::cout << argv[1] <<" - " << argv[2] << " - "<< argv[3] << "\n";
+        cout << argv[1] <<" - " << argv[2] << " - "<< argv[3] << "\n";
         // return 1;
         int version = argc == 5 && !std::strcmp("1.0", argv[4]) ? 10 : 11;
 
@@ -82,6 +82,7 @@ int main(int argc, char** argv)
         //         },
         //     ]
 		// }
+        // Form the JSON message
         pt::ptree request;
         request.put("signature_name", "serving_default");
         pt::ptree image;
@@ -93,7 +94,7 @@ int main(int argc, char** argv)
         request.add_child("instances", instances_node);
 
         // Print the generated JSON
-        pt::write_json(std::cout, request);
+        pt::write_json(cout, request);
 
         // Send the HTTP request to the remote host
         http::write(stream, req);
@@ -115,12 +116,8 @@ int main(int argc, char** argv)
         //             "probabilities": int[],
         //         },
         //     ]
-        // }
-        
-
-        // Write the message to standard out
-        // std::cout << res.body() << std::endl;
-
+        // }       
+        // Parse response message
         std::istringstream istrstream(res.body());
         pt::ptree response;
         pt::read_json(istrstream, response);
@@ -136,9 +133,9 @@ int main(int argc, char** argv)
             predictions.push_back(std::pair(classes, prob));
         }
 
-        pt::write_json(std::cout, response);
-        std::cout << predictions[0].first << "\n"; 
-        std::cout << predictions[0].second << "\n";
+        // Print response partially
+        pt::write_json(cout, response);
+        cout << predictions[0].first << " -- " << predictions[0].second << "\n";
 
         // Gracefully close the socket
         beast::error_code ec;
@@ -158,4 +155,3 @@ int main(int argc, char** argv)
     }
     return EXIT_SUCCESS;
 }
-

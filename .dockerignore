@@ -1,0 +1,5 @@
+**/.vscode
+**/build
+**/docker-compose.yml
+**/Dockerfile
+**/.gitignore
