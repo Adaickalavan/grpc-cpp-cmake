@@ -3,10 +3,13 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <string>
 
+namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
 namespace http = beast::http;       // from <boost/beast/http.hpp>
 namespace net = boost::asio;        // from <boost/asio.hpp>
@@ -47,10 +50,35 @@ int main(int argc, char** argv)
         // Make the connection on the IP address we get from a lookup
         stream.connect(results);
 
-        // Set up an HTTP GET request message
+        // Set up an HTTP POST request message
         http::request<http::string_body> req{http::verb::post, target, version};
         req.set(http::field::host, host);
-        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+        req.set(beast::http::field::content_type, "application/json; charset=utf-8");
+
+        // JSON POST message
+        // {
+        //     "signature_name" : "serving_default",
+        //     "instances" : [                
+        //         {
+		// 		       "image": 
+        //                 {
+        //                     "b64": "aW1hZ2UgYnl0ZXM=",
+        //                 }
+        //         },
+        //     ]
+		// }
+        pt::ptree request;
+        request.put("signature_name", "serving_default");
+        pt::ptree image;
+        image.put("b64", "aW1hZ2UgYnl0ZXM=");
+        pt::ptree instance_node;
+        instance_node.add_child("image",image);      
+        pt::ptree instances_node;
+        instances_node.push_back(std::make_pair("", instance_node));
+        request.add_child("instances", instances_node);
+
+        // Print the generated JSON
+        pt::write_json(std::cout, request);
 
         // Send the HTTP request to the remote host
         http::write(stream, req);
@@ -64,6 +92,19 @@ int main(int argc, char** argv)
         // Receive the HTTP response
         http::read(stream, buffer, res);
 
+        // Response JSON message
+        // {
+        //     "predictions":[
+        //         {
+        //             "classes": int,
+        //             "probabilities": [ ],
+        //         },
+        //     ]
+        // }
+        pt::ptree response;
+        pt::read_json(res, response);
+        pt::write_json(std::cout, response);
+
         // Write the message to standard out
         std::cout << res << std::endl;
 
@@ -73,7 +114,6 @@ int main(int argc, char** argv)
 
         // not_connected happens sometimes
         // so don't bother reporting it.
-        //
         if(ec && ec != beast::errc::not_connected)
             throw beast::system_error{ec};
 
