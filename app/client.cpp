@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         req.set(http::field::host, host);
         req.set(beast::http::field::content_type, "application/json; charset=utf-8");
 
-        // JSON POST message
+        // POST JSON message
         // {
         //     "signature_name" : "serving_default",
         //     "instances" : [                
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
         //         },
         //     ]
 		// }
-        // Form the JSON message
+        // Form JSON message
         pt::ptree request;
         request.put("signature_name", "serving_default");
         pt::ptree image;
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
         //         },
         //     ]
         // }       
-        // Parse response message
+        // Parse response
         std::istringstream istrstream(res.body());
         pt::ptree response;
         pt::read_json(istrstream, response);
