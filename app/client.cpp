@@ -7,13 +7,28 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
+#include <iterator>
 #include <string>
+#include <vector>
 
 namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
 namespace http = beast::http;       // from <boost/beast/http.hpp>
 namespace net = boost::asio;        // from <boost/asio.hpp>
+
+using std::cout;
 using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
+using std::ostream;
+using std::ostream_iterator;
+using std::pair;
+using std::vector;
+
+template<class T>
+ostream& operator<<(ostream& os, const vector<T>& v){
+    copy(v.begin(), v.end(), ostream_iterator<T>(os, " ")); 
+    return os;
+}
 
 // Performs an HTTP GET and prints the response
 int main(int argc, char** argv)
@@ -87,7 +102,7 @@ int main(int argc, char** argv)
         beast::flat_buffer buffer;
 
         // Declare a container to hold the response
-        http::response<http::dynamic_body> res;
+        http::response<http::string_body> res;
 
         // Receive the HTTP response
         http::read(stream, buffer, res);
@@ -97,16 +112,33 @@ int main(int argc, char** argv)
         //     "predictions":[
         //         {
         //             "classes": int,
-        //             "probabilities": [ ],
+        //             "probabilities": int[],
         //         },
         //     ]
         // }
-        pt::ptree response;
-        pt::read_json(res, response);
-        pt::write_json(std::cout, response);
+        
 
         // Write the message to standard out
-        std::cout << res << std::endl;
+        // std::cout << res.body() << std::endl;
+
+        std::istringstream istrstream(res.body());
+        pt::ptree response;
+        pt::read_json(istrstream, response);
+        vector<std::pair<int,vector<float>>> predictions;
+        for (pt::ptree::value_type &prediction : response.get_child("predictions")){
+            int classes = prediction.second.get<int>("classes");
+
+            vector<float> prob;
+            for (pt::ptree::value_type &probabilities : prediction.second.get_child("probabilities")){
+                prob.push_back(probabilities.second.get_value<float>());
+            }
+            
+            predictions.push_back(std::pair(classes, prob));
+        }
+
+        pt::write_json(std::cout, response);
+        std::cout << predictions[0].first << "\n"; 
+        std::cout << predictions[0].second << "\n";
 
         // Gracefully close the socket
         beast::error_code ec;
@@ -126,3 +158,4 @@ int main(int argc, char** argv)
     }
     return EXIT_SUCCESS;
 }
+
