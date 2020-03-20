@@ -11,6 +11,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
+#include "opencv2/opencv.hpp"
 
 namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
@@ -33,24 +34,58 @@ ostream& operator<<(ostream& os, const vector<T>& v){
 // Performs an HTTP GET and prints the response
 int main(int argc, char** argv)
 {
+    cv::VideoCapture cap(0);
+    // open the default camera, use something different from 0 otherwise;
+    // Check VideoCapture documentation.
+    // Check if camera opened successfully
+    if(!cap.isOpened()){
+        std::cout << "Error opening video stream or file" << std::endl;
+        return -1;
+    }
+    // while(1){
+        cv::Mat frame;
+        // Capture frame-by-frame
+        cap >> frame;
+        // If the frame is empty, break immediately
+        // if (frame.empty())
+        //     break;
+
+        vector<unsigned char> imBytes;
+        cv::imencode(".jpg", frame, imBytes);
+        
+        // cout<< imBytes;
+        // return 1;
+
+        // Display the resulting frame
+        // cv::imshow( "Frame", frame );
+        // Press  ESC on keyboard to exit
+        // char c = (char)cv::waitKey(25);
+        // if(c == 27)
+        //     break;
+    // }
+
+
+
+
     try
     {
         // Check command line arguments.
-        if(argc != 4 && argc != 5)
-        {
-            std::cerr <<
-                "Usage: http-client-sync <host> <port> <target> [<HTTP version: 1.0 or 1.1(default)>]\n" <<
-                "Example:\n" <<
-                "    http-client-sync www.example.com 80 /\n" <<
-                "    http-client-sync www.example.com 80 / 1.0\n";
-            return EXIT_FAILURE;
-        }
-        auto const host = argv[1];
-        auto const port = argv[2];
-        auto const target = argv[3];
+        // if(argc != 4 && argc != 5)
+        // {
+        //     std::cerr <<
+        //         "Usage: http-client-sync <host> <port> <target> [<HTTP version: 1.0 or 1.1(default)>]\n" <<
+        //         "Example:\n" <<
+        //         "    http-client-sync www.example.com 80 /\n" <<
+        //         "    http-client-sync www.example.com 80 / 1.0\n";
+        //     return EXIT_FAILURE;
+        // }
+        // auto const host = argv[1];
+        auto const host = "http://localhost:8501/v1/models";
+        auto const port = "8501";
+        auto const target = "/tfModel:predict";
         cout << argv[1] <<" - " << argv[2] << " - "<< argv[3] << "\n";
         // return 1;
-        int version = argc == 5 && !std::strcmp("1.0", argv[4]) ? 10 : 11;
+        int version = 11;
 
         // The io_context is required for all I/O
         net::io_context ioc;
@@ -75,7 +110,7 @@ int main(int argc, char** argv)
         //     "signature_name" : "serving_default",
         //     "instances" : [                
         //         {
-		// 		       "image": 
+		   // 		      "image_bytes": 
         //                 {
         //                     "b64": "aW1hZ2UgYnl0ZXM=",
         //                 }
@@ -86,9 +121,9 @@ int main(int argc, char** argv)
         pt::ptree request;
         request.put("signature_name", "serving_default");
         pt::ptree image;
-        image.put("b64", "aW1hZ2UgYnl0ZXM=");
+        image.put("b64", imBytes);
         pt::ptree instance_node;
-        instance_node.add_child("image",image);      
+        instance_node.add_child("image_bytes",image);      
         pt::ptree instances_node;
         instances_node.push_back(std::make_pair("", instance_node));
         request.add_child("instances", instances_node);
@@ -135,7 +170,7 @@ int main(int argc, char** argv)
 
         // Print response partially
         pt::write_json(cout, response);
-        cout << predictions[0].first << " -- " << predictions[0].second << "\n";
+        // cout << predictions[0].first << " -- " << predictions[0].second << "\n";
 
         // Gracefully close the socket
         beast::error_code ec;
@@ -153,5 +188,13 @@ int main(int argc, char** argv)
         std::cerr << "Error: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+    // When everything done, release the video capture object
+    cap.release();
+
+    // Closes all the frames
+    cv::destroyAllWindows();
+
+
     return EXIT_SUCCESS;
 }
