@@ -9,6 +9,7 @@
 #include <iterator>
 #include <string>
 #include <vector>
+#include "opencv2/opencv.hpp"
 
 namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
@@ -23,12 +24,45 @@ using std::string;
 
 // Performs an HTTP POST and prints the response
 int main()
+
+    // Open default camera
+    cv::VideoCapture cap(0);
+
+    // Check if camera opened successfully
+    if(!cap.isOpened()){
+        std::cout << "Error opening video stream or file" << std::endl;
+        return -1;
+    }
+    // while(1){
+        cv::Mat frame;
+        // Capture frame-by-frame
+        cap >> frame;
+        // If the frame is empty, break immediately
+        // if (frame.empty())
+        //     break;
+
+        vector<unsigned char> jpgBytes;
+        cv::imencode(".jpg", frame, jpgBytes);
+        string b64JPG(jpgBytes.begin(),jpgBytes.end());
+        // Display the resulting frame
+        // cv::imshow( "Frame", frame );
+        // Press  ESC on keyboard to exit
+        // char c = (char)cv::waitKey(25);
+        // if(c == 27)
+        //     break;
+    // }
 {
     // try {
         // Set mock host address
-        auto const host = "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io";
-        auto const port = "80";
-        auto const target = "/";
+        // auto const host = "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io";
+        // auto const port = "80";
+        // auto const target = "/";
+
+        auto const host = "127.0.0.1";
+        auto const port = "8501";
+        auto const target = "/v1/models/tfModel:predict";
+        // http://localhost:8501/v1/models/tfModel:predict
+
         int version = 11;
 
         // The io_context is required for all I/O
@@ -64,7 +98,7 @@ int main()
         pt::ptree request;
         request.put("signature_name", "serving_default");
         pt::ptree image_bytes;
-        image_bytes.put("b64", "aW1hZ2UgYnl0ZXM=");
+        image_bytes.put("b64", b64JPG);
         pt::ptree instance_node;
         instance_node.add_child("image_bytes",image_bytes);      
         pt::ptree instances_node;
@@ -75,7 +109,8 @@ int main()
         // pt::write_json(cout, request);
 
         // Write the JSON message into the request body
-        pt::write_json(req.body(), request);
+         std::stringstream reqStrStream(req.body());
+        pt::write_json(reqStrStream, request);
         req.set(boost::beast::http::field::content_type, "x-application/json");
 
         // Send the HTTP request to the remote host
@@ -91,7 +126,9 @@ int main()
         http::read(stream, buffer, res);
 
         // Print HTTP response
-        // cout << res.body() << std::endl;
+        cout << res << std::endl;
+
+        cout << "RECIVED RESPONSE" << std::endl;
 
         // Sample response JSON message
         // {
@@ -107,9 +144,9 @@ int main()
         //     ]
         // } 
         // Parse response
-        std::istringstream istrstream(res.body());
+        std::stringstream resStrStream(res.body());
         pt::ptree response;
-        pt::read_json(istrstream, response);
+        pt::read_json(resStrStream, response);
         vector<std::pair<int,vector<float>>> predictions;
         for (pt::ptree::value_type &prediction : response.get_child("predictions")){
             int classes = prediction.second.get<int>("classes");
@@ -143,5 +180,12 @@ int main()
     //     return EXIT_FAILURE;
     // }
 
+    // When everything done, release the video capture object
+    cap.release();
+
+    // Closes all the frames
+    cv::destroyAllWindows();
+
+    
     return EXIT_SUCCESS;
 }

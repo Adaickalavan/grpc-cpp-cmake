@@ -33,6 +33,9 @@
     }
     ```
 
+1. http://tfsimagenet:8501/v1/models/tfModel:predict
+    http://localhost:8501/v1/models/tfModel:predict
+
 ## Instructions to build and run the code inside Docker
 1. Build image: 
     ```bash
