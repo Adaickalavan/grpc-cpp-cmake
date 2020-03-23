@@ -122,7 +122,7 @@ int main() {
         // Write the JSON message into the request body
          std::stringstream reqStrStream(req.body());
         pt::write_json(reqStrStream, request);
-        req.set(boost::beast::http::field::content_type, "application/json");
+        req.set(boost::beast::http::field::content_type, "x-application/json");
 
         // Send the HTTP request to the remote host
         http::write(stream, req);
@@ -161,16 +161,20 @@ int main() {
         std::stringstream resStrStream(res.body());
         pt::ptree response;
         pt::read_json(resStrStream, response);
-        vector<std::pair<int,vector<float>>> predictions;
-        for (pt::ptree::value_type &prediction : response.get_child("predictions")){
-            int classes = prediction.second.get<int>("classes");
+        if (!response.get_optional<string>("error").is_initialized()){
+            cout << "opopdospdopsd "<<response.get<string>("error") << std::endl;
+        } else {
+            vector<std::pair<int,vector<float>>> predictions;
+            for (pt::ptree::value_type &prediction : response.get_child("predictions")){
+                int classes = prediction.second.get<int>("classes");
 
-            vector<float> prob;
-            for (pt::ptree::value_type &probabilities : prediction.second.get_child("probabilities")){
-                prob.push_back(probabilities.second.get_value<float>());
+                vector<float> prob;
+                for (pt::ptree::value_type &probabilities : prediction.second.get_child("probabilities")){
+                    prob.push_back(probabilities.second.get_value<float>());
+                }
+                
+                predictions.push_back(std::pair(classes, prob));
             }
-            
-            predictions.push_back(std::pair(classes, prob));
         }
         
         // Print response
