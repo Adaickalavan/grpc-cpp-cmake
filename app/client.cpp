@@ -1,17 +1,14 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-// #include <boost/beast/version.hpp>
-// #include <boost/asio/connect.hpp>
-// #include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/version.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <cstdlib>
 #include <iostream>
-#include <iterator>
 #include <iterator>
 #include <string>
 #include <vector>
-#include "opencv2/opencv.hpp"
 
 namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
@@ -20,71 +17,18 @@ namespace net = boost::asio;        // from <boost/asio.hpp>
 
 using std::cout;
 using tcp = net::ip::tcp;           // from <boost/asio/ip/tcp.hpp>
-using std::ostream;
-using std::ostream_iterator;
 using std::pair;
 using std::vector;
+using std::string;
 
-template<class T>
-ostream& operator<<(ostream& os, const vector<T>& v){
-    copy(v.begin(), v.end(), ostream_iterator<T>(os, " ")); 
-    return os;
-}
-
-// Performs an HTTP GET and prints the response
-int main(int argc, char** argv)
+// Performs an HTTP POST and prints the response
+int main()
 {
-    cv::VideoCapture cap(0);
-    // open the default camera, use something different from 0 otherwise;
-    // Check VideoCapture documentation.
-    // Check if camera opened successfully
-    if(!cap.isOpened()){
-        std::cout << "Error opening video stream or file" << std::endl;
-        return -1;
-    }
-    // while(1){
-        cv::Mat frame;
-        // Capture frame-by-frame
-        cap >> frame;
-        // If the frame is empty, break immediately
-        // if (frame.empty())
-        //     break;
-
-        vector<unsigned char> imBytes;
-        cv::imencode(".jpg", frame, imBytes);
-        
-        // cout<< imBytes;
-        // return 1;
-
-        // Display the resulting frame
-        // cv::imshow( "Frame", frame );
-        // Press  ESC on keyboard to exit
-        // char c = (char)cv::waitKey(25);
-        // if(c == 27)
-        //     break;
-    // }
-
-
-
-
-    try
-    {
-        // Check command line arguments.
-        // if(argc != 4 && argc != 5)
-        // {
-        //     std::cerr <<
-        //         "Usage: http-client-sync <host> <port> <target> [<HTTP version: 1.0 or 1.1(default)>]\n" <<
-        //         "Example:\n" <<
-        //         "    http-client-sync www.example.com 80 /\n" <<
-        //         "    http-client-sync www.example.com 80 / 1.0\n";
-        //     return EXIT_FAILURE;
-        // }
-        // auto const host = argv[1];
-        auto const host = "http://localhost:8501/v1/models";
-        auto const port = "8501";
-        auto const target = "/tfModel:predict";
-        cout << argv[1] <<" - " << argv[2] << " - "<< argv[3] << "\n";
-        // return 1;
+    // try {
+        // Set mock host address
+        auto const host = "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io";
+        auto const port = "80";
+        auto const target = "/";
         int version = 11;
 
         // The io_context is required for all I/O
@@ -103,37 +47,40 @@ int main(int argc, char** argv)
         // Set up an HTTP POST request message
         http::request<http::string_body> req{http::verb::post, target, version};
         req.set(http::field::host, host);
-        req.set(beast::http::field::content_type, "application/json; charset=utf-8");
 
-        // POST JSON message
+        // Sample POST JSON message
         // {
         //     "signature_name" : "serving_default",
         //     "instances" : [                
         //         {
-		   // 		      "image_bytes": 
+		// 		      "image_bytes": 
         //                 {
-        //                     "b64": "aW1hZ2UgYnl0ZXM=",
+        //                     "b64": "aW1hZ2UgYnl0ZXM="
         //                 }
-        //         },
+        //         }
         //     ]
 		// }
         // Form JSON message
         pt::ptree request;
         request.put("signature_name", "serving_default");
-        pt::ptree image;
-        image.put("b64", imBytes);
+        pt::ptree image_bytes;
+        image_bytes.put("b64", "aW1hZ2UgYnl0ZXM=");
         pt::ptree instance_node;
-        instance_node.add_child("image_bytes",image);      
+        instance_node.add_child("image_bytes",image_bytes);      
         pt::ptree instances_node;
         instances_node.push_back(std::make_pair("", instance_node));
         request.add_child("instances", instances_node);
 
         // Print the generated JSON
-        pt::write_json(cout, request);
+        // pt::write_json(cout, request);
+
+        // Write the JSON message into the request body
+        pt::write_json(req.body(), request);
+        req.set(boost::beast::http::field::content_type, "x-application/json");
 
         // Send the HTTP request to the remote host
         http::write(stream, req);
-
+        
         // This buffer is used for reading and must be persisted
         beast::flat_buffer buffer;
 
@@ -143,15 +90,22 @@ int main(int argc, char** argv)
         // Receive the HTTP response
         http::read(stream, buffer, res);
 
-        // Response JSON message
+        // Print HTTP response
+        // cout << res.body() << std::endl;
+
+        // Sample response JSON message
         // {
         //     "predictions":[
         //         {
-        //             "classes": int,
-        //             "probabilities": int[],
-        //         },
+        //             "classes": 2,
+        //             "probabilities": [
+        //                  0.5,
+        //                  0.1,
+        //                  0.9
+        //              ]
+        //         }
         //     ]
-        // }       
+        // } 
         // Parse response
         std::istringstream istrstream(res.body());
         pt::ptree response;
@@ -167,11 +121,10 @@ int main(int argc, char** argv)
             
             predictions.push_back(std::pair(classes, prob));
         }
-
-        // Print response partially
+        
+        // Print response
         pt::write_json(cout, response);
-        // cout << predictions[0].first << " -- " << predictions[0].second << "\n";
-
+        
         // Gracefully close the socket
         beast::error_code ec;
         stream.socket().shutdown(tcp::socket::shutdown_both, ec);
@@ -182,19 +135,13 @@ int main(int argc, char** argv)
             throw beast::system_error{ec};
 
         // If we get here then the connection is closed gracefully
-    }
-    catch(std::exception const& e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    // When everything done, release the video capture object
-    cap.release();
-
-    // Closes all the frames
-    cv::destroyAllWindows();
-
+        
+    // }
+    // catch(std::exception const& e)
+    // {
+    //     std::cerr << "Error: " << e.what() << std::endl;
+    //     return EXIT_FAILURE;
+    // }
 
     return EXIT_SUCCESS;
 }

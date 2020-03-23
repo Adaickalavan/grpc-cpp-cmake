@@ -11,8 +11,6 @@ RUN apt-get update -y
 RUN apt-get -y install \
     cmake \ 
     pkg-config \
-    libopenmpi-dev \
-    libopencv-dev \
     wget
 
 # Install Boost ASIO library
