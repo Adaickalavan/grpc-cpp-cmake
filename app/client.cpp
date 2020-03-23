@@ -1,15 +1,15 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
+// #include <boost/beast/version.hpp>
+// #include <boost/asio/connect.hpp>
+// #include <boost/asio/ip/tcp.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
 
 namespace pt = boost::property_tree;
 namespace beast = boost::beast;     // from <boost/beast.hpp>
@@ -23,7 +23,7 @@ using std::vector;
 using std::string;
 
 // Performs an HTTP POST and prints the response
-int main()
+int main() {
 
     // Open default camera
     cv::VideoCapture cap(0);
@@ -51,7 +51,7 @@ int main()
         // if(c == 27)
         //     break;
     // }
-{
+
     // try {
         // Set mock host address
         // auto const host = "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io";
@@ -186,6 +186,6 @@ int main()
     // Closes all the frames
     cv::destroyAllWindows();
 
-    
+
     return EXIT_SUCCESS;
 }
