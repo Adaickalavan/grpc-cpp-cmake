@@ -22,6 +22,13 @@ using std::pair;
 using std::vector;
 using std::string;
 
+
+  // A helper for reporting errors
+int fail(std::string what, beast::error_code ec){
+    std::cerr << what << ": " << ec.message() << std::endl;
+    return EXIT_FAILURE;
+};
+
 // Performs an HTTP POST and prints the response
 int main() {
 
@@ -44,6 +51,7 @@ int main() {
         vector<unsigned char> jpgBytes;
         cv::imencode(".jpg", frame, jpgBytes);
         string b64JPG(jpgBytes.begin(),jpgBytes.end());
+        // std::stringstream b64JPG(std::string(jpgBytes.begin(), jpgBytes.end()));
         // Display the resulting frame
         // cv::imshow( "Frame", frame );
         // Press  ESC on keyboard to exit
@@ -52,6 +60,9 @@ int main() {
         //     break;
     // }
 
+    cout << "hi"<< std::endl;
+
+    // return 1;
     // try {
         // Set mock host address
         // auto const host = "d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io";
@@ -111,7 +122,7 @@ int main() {
         // Write the JSON message into the request body
          std::stringstream reqStrStream(req.body());
         pt::write_json(reqStrStream, request);
-        req.set(boost::beast::http::field::content_type, "x-application/json");
+        req.set(boost::beast::http::field::content_type, "application/json");
 
         // Send the HTTP request to the remote host
         http::write(stream, req);
@@ -123,7 +134,10 @@ int main() {
         http::response<http::string_body> res;
 
         // Receive the HTTP response
-        http::read(stream, buffer, res);
+        beast::error_code ec1;
+        http::read(stream, buffer, res, ec1);
+        if (ec1)
+            return fail("read", ec1);
 
         // Print HTTP response
         cout << res << std::endl;
