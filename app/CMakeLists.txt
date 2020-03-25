@@ -40,59 +40,34 @@ find_package(Boost 1.72 REQUIRED)
 #     )
 
 
-# Fetch GRPC
+# Include GRPC helper macros and functions
 include(../cmake/grpc.cmake)
-fetch_grpc()
 
+# Fetch GRPC
+FETCH_GRPC()
 
-
-# Get proto file
-list(APPEND file_proto "../protos/helloworld.proto")
-grpc_generate_cpp(
-    PROTO_SRCS
-    PROTO_HDRS
-    GRPC_SRCS 
-    GRPC_HDRS 
-    ${PROTO_SRC_DIR} 
-    ${PROTOS}
+# List proto files
+list(APPEND PROTO_FILES 
+    ../protos/helloworld.proto
     )
 
-get_filename_component(FIL_proto "../protos/helloworld.proto" ABSOLUTE)
-get_filename_component(FIL_proto_path "${FIL_proto}" PATH)
+# Generates C++ sources from the .proto files
+GRPC_GENERATE_CPP(
+    PROTO_SRCS
+    GRPC_SRCS
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROTO_FILES}
+    )
 
-# Generated sources
-set(FIL_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc")
-set(FIL_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h")
-set(FIL_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc")
-set(FIL_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h")
-
-# Compile protocol buffers
-add_custom_command(
-    OUTPUT 
-        "${FIL_proto_srcs}" 
-        "${FIL_proto_hdrs}" 
-        "${FIL_grpc_srcs}" 
-        "${FIL_grpc_hdrs}"
-    COMMAND 
-        ${_PROTOBUF_PROTOC}
-        ARGS 
-            --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-            --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-            -I "${FIL_proto_path}"
-            --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${FIL_proto}"
-    DEPENDS 
-        "${FIL_proto}"
-)
-
-# Targets greeter_[async_](client|server)
+# Targets greeter_(client|server)
 foreach(_target
     greeter_client 
     greeter_server)
     add_executable(${_target} 
         "./${_target}.cc"
-        ${FIL_proto_srcs}
-        ${FIL_grpc_srcs})
+        ${PROTO_SRCS}
+        ${GRPC_SRCS}
+    )
     target_link_libraries(${_target}
         PUBLIC
             ${_REFLECTION}
