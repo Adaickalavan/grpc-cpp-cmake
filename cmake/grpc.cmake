@@ -73,9 +73,10 @@ function(GRPC_GENERATE_CPP
                     --cpp_out "${DEST}"
                     -I "${ABS_PATH}"
                     --plugin=protoc-gen-grpc=${_GRPC_CPP_PLUGIN_EXECUTABLE}
-                "${ABS_FIL}"
+                ${ABS_FIL}
             DEPENDS 
-                "${ABS_FIL}" 
+                ${ABS_FIL} 
+                ${_GRPC_CPP_PLUGIN_EXECUTABLE}
             COMMENT "Running C++ gRPC compiler on ${FIL}"
             VERBATIM 
         )

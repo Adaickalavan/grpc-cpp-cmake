@@ -64,7 +64,7 @@ foreach(_target
     greeter_client 
     greeter_server)
     add_executable(${_target} 
-        "./${_target}.cc"
+        ./${_target}.cc
         ${PROTO_SRCS}
         ${GRPC_SRCS}
     )
