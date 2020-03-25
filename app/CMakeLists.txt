@@ -44,7 +44,19 @@ find_package(Boost 1.72 REQUIRED)
 include(../cmake/grpc.cmake)
 fetch_grpc()
 
+
+
 # Get proto file
+list(APPEND file_proto "../protos/helloworld.proto")
+grpc_generate_cpp(
+    PROTO_SRCS
+    PROTO_HDRS
+    GRPC_SRCS 
+    GRPC_HDRS 
+    ${PROTO_SRC_DIR} 
+    ${PROTOS}
+    )
+
 get_filename_component(FIL_proto "../protos/helloworld.proto" ABSOLUTE)
 get_filename_component(FIL_proto_path "${FIL_proto}" PATH)
 
@@ -53,10 +65,6 @@ set(FIL_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc")
 set(FIL_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h")
 set(FIL_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc")
 set(FIL_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h")
-
-# message("${${FIL}_proto}")
-# message(${CMAKE_CURRENT_LIST_FILE})
-# message(${CMAKE_CURRENT_BINARY_DIR})
 
 # Compile protocol buffers
 add_custom_command(
@@ -77,9 +85,6 @@ add_custom_command(
         "${FIL_proto}"
 )
 
-# Include generated *.pb.h files
-# include_directories("${CMAKE_CURRENT_BINARY_DIR}")
-
 # Targets greeter_[async_](client|server)
 foreach(_target
     greeter_client 
@@ -94,6 +99,7 @@ foreach(_target
             ${_GRPC_GRPCPP}
             ${_PROTOBUF_LIBPROTOBUF}
     )
+    # Include generated *.pb.h files
     target_include_directories(${_target}
         PUBLIC
             ${CMAKE_CURRENT_BINARY_DIR}
