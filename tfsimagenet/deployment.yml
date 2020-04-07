@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+
+metadata:
+  name: tfsimagenet
+  annotations:
+      contact: adaickalavan <adaickalavan@gmail.com> 
+
+spec:
+  replicas: 2
+
+  strategy: 
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: tfsimagenet
+
+  template:
+    metadata:
+      name: tfsimagenet
+      labels:
+        app: tfsimagenet
+    spec:
+      containers:
+        - name: tfsimagenet
+          image: tfsimagenet
+          imagePullPolicy: IfNotPresent
+          ports:    
+            - name: grpc
+              containerPort: 8500
+            - name: rest
+              containerPort: 8501
+          resources:
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: tfsimagenet-service
+  namespace: default
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: tfsimagenet
+
+  ports:
+    - name: tfsimagenet-grpc
+      port: 8500
+    - name: tfsimagenet-rest
+      port: 8501

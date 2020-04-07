@@ -9,17 +9,29 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install build tools
 RUN apt-get update -y
 RUN apt-get -y install \
-    cmake \ 
     pkg-config \
     libopenmpi-dev \
     libopencv-dev \
-    wget
+    wget \
+    git
 
-# Install Boost ASIO library
+# Install CMake 3.17.0
+ARG CMAKE_VER=3.17
+ARG CMAKE_BUILD=0
+RUN cd /usr/local/ && \
+    wget https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VER}.${CMAKE_BUILD}-Linux-x86_64.tar.gz && \
+    tar -xzf ./cmake-${CMAKE_VER}.${CMAKE_BUILD}-Linux-x86_64.tar.gz && \
+    rm -r ./cmake-${CMAKE_VER}.${CMAKE_BUILD}-Linux-x86_64.tar.gz && \
+    ln -s /usr/local/cmake-${CMAKE_VER}.${CMAKE_BUILD}-Linux-x86_64/bin/cmake /usr/bin/cmake
+
+# Install Boost ASIO library 1.72.0
+ARG BOOST_MAJOR=1
+ARG BOOST_MINOR=72 
+ARG BOOST_BUILD=0
 RUN cd /usr/include/ && \
-    wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2 && \
-    tar --bzip2 -xf ./boost_1_72_0.tar.bz2 && \
-    rm -r ./boost_1_72_0.tar.bz2
+    wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR}.${BOOST_MINOR}.${BOOST_BUILD}/source/boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2 && \
+    tar --bzip2 -xf ./boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2 && \
+    rm -r ./boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2
 
 # Change working directory
 WORKDIR /src
@@ -27,7 +39,7 @@ WORKDIR /src
 # Copy the current folder which contains C++ source code to the Docker image
 COPY . .
 
-# Use cmake to compile the cpp source file. cmake@v3.10.x .
+# Use cmake to compile the cpp source file.
 RUN cmake -E make_directory build && \
     cmake -E chdir ./build cmake .. && \
     cmake --build ./build

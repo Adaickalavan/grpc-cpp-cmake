@@ -1,0 +1,13 @@
+version: '3'
+services:
+
+  #tfsimagenet
+  tfsimagenet:
+    image: tfsimagenet
+    container_name: tfsimagenet   
+    restart: unless-stopped
+    network_mode: host
+    # ports: 
+    #   - 8500:8500 #gRPC   
+    #   - 8501:8501 #REST    
+

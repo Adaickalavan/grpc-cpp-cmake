@@ -15,10 +15,35 @@
     ```bash
     $ cd /path/to/repository/root/cpp-client/
     $ cd build
-    $ ./bin/client d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io 80 /
+    $ ./bin/client
     ```
-    For testing, I have set up a mock server using Postman at the url https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io. A `GET` request to this mock server url will return a web response "Hi got" and a `POST` request to this mock server url will return a web response "Hi posted". This can be verified by accessing the mock server url using your browser.
+    For testing, I have set up a mock server using Postman at the url https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io. A `POST` request to this mock server url will return a JSON response 
+    ```JSON
+    {
+        "predictions": [
+            {
+                "classes": 2,
+                "probabilities": [
+                    0.5,
+                    0.1,
+                    0.8
+                ]
+            }
+        ]
+    }
+    ```
 
-## Instructions to run the code inside Docker
-1. Build: `docker build -t cppclient .` on `Dockerfile`
-1. Run: `docker-compose up` on `docker-compose.yaml` file    
+1. http://tfsimagenet:8501/v1/models/tfModel:predict
+    http://localhost:8501/v1/models/tfModel:predict
+
+## Instructions to build and run the code inside Docker
+1. Build image: 
+    ```bash
+    $ cd /path/to/repository/root/cpp-client
+    $ docker build -t cppclient .
+    ```
+1. Run the image: 
+    ```bash
+    $ cd /path/to/repository/root/cpp-client
+    $ docker-compose up
+    ```    
