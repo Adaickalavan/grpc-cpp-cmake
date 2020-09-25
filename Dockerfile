@@ -7,13 +7,15 @@ LABEL Author Adaickalavan<adaickalavan@gmail.com>
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build tools
-RUN apt-get update -y
+RUN apt-get update --fix-missing -y
 RUN apt-get -y install \
     pkg-config \
     libopenmpi-dev \
     libopencv-dev \
     wget \
-    git
+    git \ 
+    libunwind-dev \
+    golang
 
 # Install CMake 3.17.0
 ARG CMAKE_VER=3.17
@@ -43,3 +45,9 @@ COPY . .
 RUN cmake -E make_directory build && \
     cmake -E chdir ./build cmake .. && \
     cmake --build ./build
+
+RUN cmd "/src/build/app/greeter_server"
+
+# RUN cmake -E make_directory build && \
+#     cmake -E chdir ./build cmake -DCMAKE_BUILD_TYPE=Release .. && \
+#     cmake --build ./build

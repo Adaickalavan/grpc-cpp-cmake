@@ -1,7 +1,7 @@
 ﻿find_package(Threads REQUIRED)
-find_package(OpenCV REQUIRED)
-set(BOOST_ROOT /usr/include/boost_1_72_0)
-find_package(Boost 1.72 REQUIRED)
+# find_package(OpenCV REQUIRED)
+# set(BOOST_ROOT /usr/include/boost_1_72_0)
+# find_package(Boost 1.72 REQUIRED)
 
 # add_executable(clientrest 
 #     ./clientrest.cpp) 
