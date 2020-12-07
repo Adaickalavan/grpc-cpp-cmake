@@ -10,12 +10,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Environment variables inside docker
 #------------------------------------------------------------------------------
 # Uncomment inside Huawei domain
-ENV http_proxy http://localhost:3128
-ENV HTTP_PROXY http://localhost:3128
-ENV https_proxy http://localhost:3128
-ENV HTTPS_PROXY http://localhost:3128
-ENV ftp_proxy http://localhost:3128
-ENV FTP_PROXY http://localhost:3128
+ENV http_proxy http://0.0.0.0:3128
+ENV HTTP_PROXY http://0.0.0.0:3128
+ENV https_proxy http://0.0.0.0:3128
+ENV HTTPS_PROXY http://0.0.0.0:3128
+ENV ftp_proxy http://0.0.0.0:3128
+ENV FTP_PROXY http://0.0.0.0:3128
 ENV no_proxy 127.0.0.1,10.218.163.63,localhost,.huawei.com,.kyber.team
 ENV NO_PROXY 127.0.0.1,10.218.163.63,localhost,.huawei.com,.kyber.team
 
@@ -28,7 +28,6 @@ RUN apt-get update --fix-missing -y && \
     pkg-config \
     libopenmpi-dev \
     wget \
-    git \ 
     libunwind-dev \
     build-essential \
     autoconf \
@@ -49,7 +48,7 @@ RUN cd /usr/local/ && \
 # ARG BOOST_MINOR=72 
 # ARG BOOST_BUILD=0
 # RUN cd /usr/include/ && \
-#     wget https://dl.bintray.com/boostorg/release/${BOOST_MAJOR}.${BOOST_MINOR}.${BOOST_BUILD}/source/boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2 && \
+#     wget --no-check-certificate https://dl.bintray.com/boostorg/release/${BOOST_MAJOR}.${BOOST_MINOR}.${BOOST_BUILD}/source/boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2 && \
 #     tar --bzip2 -xf ./boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2 && \
 #     rm -r ./boost_${BOOST_MAJOR}_${BOOST_MINOR}_${BOOST_BUILD}.tar.bz2
 
@@ -77,6 +76,14 @@ RUN apt-get install build-essential fakeroot dpkg-dev -y && \
     dpkg -i ../git_*ubuntu*.deb
 
 #------------------------------------------------------------------------------
+# Fix Git proxy
+#------------------------------------------------------------------------------
+# RUN git config --global http.proxy http://a84166141:huawei432!@localhost:3128
+RUN git config --global https.proxy https://localhost:3128
+RUN git config --global http.proxy http://localhost:3128
+ENV GIT_SSL_NO_VERIFY true
+
+#------------------------------------------------------------------------------
 # Copy src files
 #------------------------------------------------------------------------------
 # Change working directory
@@ -90,7 +97,10 @@ RUN cmake -E make_directory build && \
     cmake -E chdir ./build cmake .. && \
     cmake --build ./build
 
-RUN cmd "/src/build/app/greeter_server"
+#------------------------------------------------------------------------------
+# Entrypoint
+#------------------------------------------------------------------------------
+CMD ["/src/build/app/greeter_server"]
 
 # RUN cmake -E make_directory build && \
 #     cmake -E chdir ./build cmake -DCMAKE_BUILD_TYPE=Release .. && \
