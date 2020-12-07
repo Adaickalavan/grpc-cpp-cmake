@@ -15,32 +15,14 @@
     ```bash
     $ cd /path/to/repository/root/cpp-client/
     $ cd build
-    $ ./bin/client
+    $ ./app/greeter_client
     ```
-    For testing, I have set up a mock server using Postman at the url https://d1e2caec-b504-4bf3-8bc3-f28db5fd7618.mock.pstmn.io. A `POST` request to this mock server url will return a JSON response 
-    ```JSON
-    {
-        "predictions": [
-            {
-                "classes": 2,
-                "probabilities": [
-                    0.5,
-                    0.1,
-                    0.8
-                ]
-            }
-        ]
-    }
-    ```
-
-1. http://tfsimagenet:8501/v1/models/tfModel:predict
-    http://localhost:8501/v1/models/tfModel:predict
 
 ## Instructions to build and run the code inside Docker
 1. Build image: 
     ```bash
     $ cd /path/to/repository/root/cpp-client
-    $ docker build -t cppclient .
+    $ docker build -t cppclient --network=host .
     ```
 1. Run the image: 
     ```bash
@@ -60,8 +42,8 @@ Reference: https://github.com/grpc/grpc/blob/master/BUILDING.md#pre-requisites
 
 1. Install pre-requisites and CMake
     ```bash
-    $ sudo apt-get install build-essential autoconf libtool pkg-config
-    $ sudo apt-get install cmake
+    $ sudo apt-get install -y build-essential autoconf libtool pkg-config
+    $ sudo apt-get install -y cmake
     ```
 
 1. Clone gRPC repository
@@ -81,5 +63,5 @@ Reference: https://github.com/grpc/grpc/blob/master/BUILDING.md#pre-requisites
         -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
         ../..
     $ make
-    // -- $ make install
+    $ make install
     ```
