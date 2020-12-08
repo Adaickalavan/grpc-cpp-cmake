@@ -1,10 +1,10 @@
 version: '3'
 services:
 
-  cppgrpc:
-    image: cppgrpc
-    container_name: cppgrpc   
+  grpccpp:
+    image: grpccpp
+    container_name: grpccpp   
     restart: on-failure #Ensures that intermittent failures in the Docker environment do not result in unnecessary failures of the service.
     network_mode: host  
     # Name of executable to be run
-    command: ["/src/build/app/greeter_client"] 
+    command: ["/src/build/app/greeter_server"] 
