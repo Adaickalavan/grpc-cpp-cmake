@@ -78,7 +78,6 @@ RUN apt-get install build-essential fakeroot dpkg-dev -y && \
 #------------------------------------------------------------------------------
 # Fix Git proxy
 #------------------------------------------------------------------------------
-# RUN git config --global http.proxy http://a84166141:huawei432!@localhost:3128
 RUN git config --global https.proxy https://localhost:3128
 RUN git config --global http.proxy http://localhost:3128
 ENV GIT_SSL_NO_VERIFY true
