@@ -14,8 +14,6 @@ ENV http_proxy http://0.0.0.0:3128
 ENV HTTP_PROXY http://0.0.0.0:3128
 ENV https_proxy http://0.0.0.0:3128
 ENV HTTPS_PROXY http://0.0.0.0:3128
-ENV ftp_proxy http://0.0.0.0:3128
-ENV FTP_PROXY http://0.0.0.0:3128
 
 #------------------------------------------------------------------------------
 # Install dependencies
