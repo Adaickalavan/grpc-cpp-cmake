@@ -24,9 +24,6 @@ class GreeterServiceImpl final : public Greeter::Service {
         reply->set_message(prefix + request->name());
         return Status::OK;
     }
-    Status SayHelloAgain(ServerContext* context, const HelloRequest* request,
-                            HelloReply* ){
-  }
 };
 
 void RunServer() {

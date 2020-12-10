@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 # Project name and a few useful settings.
 project(
-    cppclient
+    grpccpp
     LANGUAGES CXX
     )
 
@@ -17,6 +17,7 @@ include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 11)
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Proxy
 set(ENV{http_proxy} "http://localhost:3128")
 set(ENV{https_proxy} "https://localhost:3128")
 set(ENV{HTTP_PROXY} "http://localhost:3128")

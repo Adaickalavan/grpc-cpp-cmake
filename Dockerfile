@@ -9,15 +9,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 #------------------------------------------------------------------------------
 # Environment variables inside docker
 #------------------------------------------------------------------------------
-# Uncomment inside Huawei domain
+# Proxy
 ENV http_proxy http://0.0.0.0:3128
 ENV HTTP_PROXY http://0.0.0.0:3128
 ENV https_proxy http://0.0.0.0:3128
 ENV HTTPS_PROXY http://0.0.0.0:3128
 ENV ftp_proxy http://0.0.0.0:3128
 ENV FTP_PROXY http://0.0.0.0:3128
-ENV no_proxy 127.0.0.1,10.218.163.63,localhost,.huawei.com,.kyber.team
-ENV NO_PROXY 127.0.0.1,10.218.163.63,localhost,.huawei.com,.kyber.team
 
 #------------------------------------------------------------------------------
 # Install dependencies
@@ -100,7 +98,3 @@ RUN cmake -E make_directory build && \
 # Entrypoint
 #------------------------------------------------------------------------------
 CMD ["/src/build/app/greeter_server"]
-
-# RUN cmake -E make_directory build && \
-#     cmake -E chdir ./build cmake -DCMAKE_BUILD_TYPE=Release .. && \
-#     cmake --build ./build

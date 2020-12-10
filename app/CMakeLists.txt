@@ -1,25 +1,5 @@
 ﻿find_package(Threads REQUIRED)
 
-# add_executable(clientgrpc 
-#     ./clientgrpc.cpp) 
-
-# target_include_directories(
-#     clientgrpc 
-#     PUBLIC 
-#         ${Boost_INCLUDE_DIR}
-#         ${OpenCV_INCLUDE_DIRS}
-#     )
-
-# target_link_libraries(
-#     clientgrpc
-#     PUBLIC
-#         ${CMAKE_THREAD_LIBS_INIT}
-#         ${BOOST_LIBRARIES}
-#         ${OpenCV_LIBS}
-#         gRPC::grpc++
-#     )
-
-
 # Include GRPC helper macros and functions
 include(../cmake/grpc.cmake)
 
